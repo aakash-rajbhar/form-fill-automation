@@ -1,0 +1,30 @@
+<!doctype html><html><body>
+<h3>Main form (with a Country decoy)</h3><div id="main"></div>
+<script>
+const FORM = `<div>
+<div><label for="fn">First Name</label><input id="fn" type="text"></div>
+<div><label for="ln">Last Name</label><input id="ln" type="text"></div>
+<fieldset><legend>Gender</legend>
+  <label><input type="radio" name="g" value="m">Male</label>
+  <label><input type="radio" name="g" value="f">Female</label>
+  <label><input type="radio" name="g" value="t">Transgender</label></fieldset>
+<div><label for="st">State</label><select id="st"><option>Select</option><option>Texas</option><option>Ohio</option></select></div>
+<div>Hobbies <label><input type="checkbox">Dance</label> <label><input type="checkbox">Reading</label></div>
+<div>About Yourself <textarea></textarea></div></div>`;
+
+document.getElementById('main').innerHTML =
+  '<div><label for="co">Country</label><select id="co"><option>India</option><option>Texas Republic</option></select></div>' + FORM;
+
+function iframe(parent) { const f = document.createElement('iframe'); f.srcdoc = '<body>' + FORM + '</body>'; parent.appendChild(f); }
+function host(parent) { const d = document.createElement('div'); parent.appendChild(d); return d; }
+
+iframe(document.body);                                            // iframe
+host(document.body).attachShadow({mode:'open'}).innerHTML = FORM; // shadow DOM
+function nested(levels) {                                         // N nested shadow roots, alternating closed/open
+  let root = host(document.body).attachShadow({mode: levels % 2 ? 'closed' : 'open'});
+  for (let i = 1; i < levels; i++) root = host(root).attachShadow({mode: (levels + i) % 2 ? 'closed' : 'open'});
+  root.innerHTML = FORM;
+}
+[2, 3, 6].forEach(nested);
+iframe(host(document.body).attachShadow({mode:'open'}));          // iframe inside a shadow root
+</script></body></html>
